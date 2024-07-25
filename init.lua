@@ -102,7 +102,7 @@ vim.g.have_nerd_font = false
 vim.opt.number = true
 -- You can also add relative line numbers, to help with jumping.
 --  Experiment for yourself to see if you like it!
--- vim.opt.relativenumber = true
+vim.opt.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
@@ -126,7 +126,7 @@ vim.opt.ignorecase = true
 vim.opt.smartcase = true
 
 -- Keep signcolumn on by default
-vim.opt.signcolumn = 'yes'
+vim.opt.signcolumn = 'number'
 
 -- Decrease update time
 vim.opt.updatetime = 250
@@ -143,7 +143,7 @@ vim.opt.splitbelow = true
 --  See `:help 'list'`
 --  and `:help 'listchars'`
 vim.opt.list = true
-vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
+vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣', lead = '·' }
 
 -- Preview substitutions live, as you type!
 vim.opt.inccommand = 'split'
@@ -154,15 +154,55 @@ vim.opt.cursorline = true
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.opt.scrolloff = 10
 
+vim.opt.shiftwidth = 2
+
+vim.opt.swapfile = false
+
+-- Hide netrw banner
+vim.g.netrw_banner = 0
+
+vim.opt.wildmenu = true
+vim.opt.wildchar = 20 -- <C-t>
+
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
+
+-- Open netrw
+vim.keymap.set('n', '<C-e>', '<cmd>Explore<CR>')
+
+-- An attempt to add a bit more ergonomic
+-- Mostly trying to avoid right hand moving too much
+vim.api.nvim_set_keymap('n', '<C-f>', '/', { noremap = true })
+
+-- Keybinds to get out of insert mode
+vim.keymap.set('i', 'jj', '<Esc>')
+vim.keymap.set('i', '<C-j>', '<Esc>')
+
+-- Keybinds to go up and down instead of <c-p> and <c-n>
+vim.keymap.set('i', '<C-j>', '<C-n>')
+vim.keymap.set('i', '<C-k>', '<C-p>')
 
 -- Set highlight on search, but clear on pressing <Esc> in normal mode
 vim.opt.hlsearch = true
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
+vim.keymap.set('n', '<leader>h', '<cmd>nohlsearch<CR>')
 
 -- Diagnostic keymaps
+vim.keymap.set('n', '[d', function()
+  return vim.diagnostic.jump { count = 1 }
+end, { desc = 'Go to [D]iagnostic message' })
+vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Show diagnostic [E]rror messages' })
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
+
+-- Gitsigns keymaps
+vim.keymap.set('n', '<leader>gn', '<cmd>lua require"gitsigns".next_hunk()<CR>', { desc = 'Next [H]unk' })
+vim.keymap.set('n', '<leader>gp', '<cmd>lua require"gitsigns".prev_hunk()<CR>', { desc = 'Previous [H]unk' })
+vim.keymap.set('n', '<leader>gs', '<cmd>lua require"gitsigns".stage_hunk()<CR>', { desc = '[S]tage [H]unk' })
+vim.keymap.set('n', '<leader>gu', '<cmd>lua require"gitsigns".undo_stage_hunk()<CR>', { desc = '[U]ndo [S]tage [H]unk' })
+vim.keymap.set('n', '<leader>gr', '<cmd>lua require"gitsigns".reset_hunk()<CR>', { desc = '[R]eset [H]unk' })
+-- Not so sure about these - the feel a bit weird to me
+vim.keymap.set('n', '<leader>gvh', '<cmd>lua require"gitsigns".preview_hunk()<CR>', { desc = 'Pre[v]iew [H]unk' })
+vim.keymap.set('n', '<leader>gvi', '<cmd>lua require"gitsigns".preview_hunk_inline()<CR>', { desc = 'Pre[v]iew Hunk [I]nline' })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
@@ -300,6 +340,7 @@ require('lazy').setup({
     branch = '0.1.x',
     dependencies = {
       'nvim-lua/plenary.nvim',
+      'jonarrien/telescope-cmdline.nvim',
       { -- If encountering errors, see telescope-fzf-native README for installation instructions
         'nvim-telescope/telescope-fzf-native.nvim',
 
@@ -318,7 +359,12 @@ require('lazy').setup({
       -- Useful for getting pretty icons, but requires a Nerd Font.
       { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
     },
+    keys = {
+      { ':', '<cmd>Telescope cmdline<cr>', desc = 'Cmdline' },
+    },
     config = function()
+      require('telescope').load_extension 'cmdline'
+
       -- Telescope is a fuzzy finder that comes with a lot of different things that
       -- it can fuzzy find! It's more than just a "file finder", it can search
       -- many different aspects of Neovim, your workspace, LSP, and more!
@@ -349,10 +395,49 @@ require('lazy').setup({
         --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
         --   },
         -- },
-        -- pickers = {}
+        pickers = {
+          find_files = {
+            theme = 'ivy',
+          },
+          help_tags = {
+            theme = 'ivy',
+          },
+          keymaps = {
+            theme = 'ivy',
+          },
+          builtin = {
+            theme = 'ivy',
+          },
+          grep_string = {
+            theme = 'ivy',
+          },
+          live_grep = {
+            theme = 'ivy',
+          },
+          diagnostics = {
+            theme = 'ivy',
+          },
+          resume = {
+            theme = 'ivy',
+          },
+          oldfiles = {
+            theme = 'ivy',
+          },
+          buffers = {
+            theme = 'ivy',
+          },
+        },
         extensions = {
           ['ui-select'] = {
             require('telescope.themes').get_dropdown(),
+          },
+        },
+        cmdline = {
+          picker = {
+            layout_config = {
+              width = 120,
+              height = 25,
+            },
           },
         },
       }
@@ -575,6 +660,7 @@ require('lazy').setup({
         -- tsserver = {},
         --
 
+        tsserver = {},
         lua_ls = {
           -- cmd = {...},
           -- filetypes = { ...},
@@ -656,6 +742,9 @@ require('lazy').setup({
         -- You can use a sub-list to tell conform to run *until* a formatter
         -- is found.
         -- javascript = { { "prettierd", "prettier" } },
+        javascript = { { 'prettierd', 'eslint_d' } },
+        typescript = { 'eslint_d', 'prettierd' },
+        typescriptreact = { 'eslint_d', 'prettierd' },
       },
     },
   },
@@ -680,12 +769,12 @@ require('lazy').setup({
           -- `friendly-snippets` contains a variety of premade snippets.
           --    See the README about individual language/framework/plugin snippets:
           --    https://github.com/rafamadriz/friendly-snippets
-          -- {
-          --   'rafamadriz/friendly-snippets',
-          --   config = function()
-          --     require('luasnip.loaders.from_vscode').lazy_load()
-          --   end,
-          -- },
+          {
+            'rafamadriz/friendly-snippets',
+            config = function()
+              require('luasnip.loaders.from_vscode').lazy_load()
+            end,
+          },
         },
       },
       'saadparwaiz1/cmp_luasnip',
@@ -700,6 +789,7 @@ require('lazy').setup({
       -- See `:help cmp`
       local cmp = require 'cmp'
       local luasnip = require 'luasnip'
+      local lspkind = require 'lspkind'
       luasnip.config.setup {}
 
       cmp.setup {
@@ -707,6 +797,24 @@ require('lazy').setup({
           expand = function(args)
             luasnip.lsp_expand(args.body)
           end,
+        },
+        formatting = {
+          fields = { 'abbr', 'kind', 'menu' },
+          expandable_indicator = true,
+          format = lspkind.cmp_format {
+            mode = 'symbol', -- show only symbol annotations
+            maxwidth = 50, -- prevent the popup from showing more than provided characters (e.g 50 will not show more than 50 characters)
+            -- can also be a function to dynamically calculate max width such as
+            -- maxwidth = function() return math.floor(0.45 * vim.o.columns) end,
+            ellipsis_char = '...', -- when popup menu exceed maxwidth, the truncated part would show ellipsis_char instead (must define maxwidth first)
+            show_labelDetails = true, -- show labelDetails in menu. Disabled by default
+
+            -- The function below will be called before any actual modifications from lspkind
+            -- so that you can provide more controls on popup customization. (See [#30](https://github.com/onsails/lspkind-nvim/pull/30))
+            -- before = function(entry, vim_item)
+            --   return vim_item
+            -- end,
+          },
         },
         completion = { completeopt = 'menu,menuone,noinsert' },
 
@@ -753,7 +861,7 @@ require('lazy').setup({
               luasnip.expand_or_jump()
             end
           end, { 'i', 's' }),
-          ['<C-h>'] = cmp.mapping(function()
+          ['<C-k>'] = cmp.mapping(function()
             if luasnip.locally_jumpable(-1) then
               luasnip.jump(-1)
             end
@@ -781,16 +889,18 @@ require('lazy').setup({
     -- change the command in the config to whatever the name of that colorscheme is.
     --
     -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-    'folke/tokyonight.nvim',
+    'catppuccin/nvim',
+    name = 'catppuccin',
     priority = 1000, -- Make sure to load this before all the other start plugins.
     init = function()
       -- Load the colorscheme here.
       -- Like many other themes, this one has different styles, and you could load
       -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
+
+      vim.cmd.colorscheme 'catppuccin-mocha'
 
       -- You can configure highlights by doing something like:
-      vim.cmd.hi 'Comment gui=none'
+      -- vim.cmd.hi 'Comment gui=none'
     end,
   },
 
@@ -814,24 +924,6 @@ require('lazy').setup({
       -- - sd'   - [S]urround [D]elete [']quotes
       -- - sr)'  - [S]urround [R]eplace [)] [']
       require('mini.surround').setup()
-
-      -- Simple and easy statusline.
-      --  You could remove this setup call if you don't like it,
-      --  and try some other statusline plugin
-      local statusline = require 'mini.statusline'
-      -- set use_icons to true if you have a Nerd Font
-      statusline.setup { use_icons = vim.g.have_nerd_font }
-
-      -- You can configure sections in the statusline by overriding their
-      -- default behavior. For example, here we set the section for
-      -- cursor location to LINE:COLUMN
-      ---@diagnostic disable-next-line: duplicate-set-field
-      statusline.section_location = function()
-        return '%2l:%-2v'
-      end
-
-      -- ... and there is more!
-      --  Check out: https://github.com/echasnovski/mini.nvim
     end,
   },
   { -- Highlight, edit, and navigate code
@@ -888,7 +980,7 @@ require('lazy').setup({
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
   --    For additional information, see `:help lazy.nvim-lazy.nvim-structuring-your-plugins`
-  -- { import = 'custom.plugins' },
+  { import = 'custom.plugins' },
 }, {
   ui = {
     -- If you are using a Nerd Font: set icons to an empty table which will use the
