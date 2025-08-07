@@ -1,4 +1,4 @@
---[[
+--[[initlua
 
 =====================================================================
 ==================== READ THIS BEFORE CONTINUING ====================
@@ -660,7 +660,7 @@ require('lazy').setup({
         -- tsserver = {},
         --
 
-        tsserver = {},
+        -- tsserver = {},
         lua_ls = {
           -- cmd = {...},
           -- filetypes = { ...},
@@ -742,7 +742,7 @@ require('lazy').setup({
         -- You can use a sub-list to tell conform to run *until* a formatter
         -- is found.
         -- javascript = { { "prettierd", "prettier" } },
-        javascript = { { 'prettierd', 'eslint_d' } },
+        javascript = { { 'eslint_d', 'prettierd' } },
         typescript = { 'eslint_d', 'prettierd' },
         typescriptreact = { 'eslint_d', 'prettierd' },
       },
@@ -889,20 +889,11 @@ require('lazy').setup({
     -- change the command in the config to whatever the name of that colorscheme is.
     --
     -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-    'catppuccin/nvim',
-    name = 'catppuccin',
-    priority = 1000, -- Make sure to load this before all the other start plugins.
-    init = function()
-      -- Load the colorscheme here.
-      -- Like many other themes, this one has different styles, and you could load
-      -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-
-      vim.cmd.colorscheme 'catppuccin-mocha'
-
-      -- You can configure highlights by doing something like:
-      -- vim.cmd.hi 'Comment gui=none'
-    end,
+    -- 'onedark',
+    -- name = 'onedark', -- This is the name of the colorscheme plugin, used for lazy loading
+    -- priority = 1000, -- Make sure to load this before all the other start plugins.
   },
+  { 'catppuccin/nvim', name = 'catppuccin', priority = 1000 },
 
   -- Highlight todo, notes, etc in comments
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
