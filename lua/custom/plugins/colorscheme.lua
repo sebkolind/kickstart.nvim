@@ -1,4 +1,5 @@
-return { -- You can easily change to a different colorscheme.
+return {
+  -- You can easily change to a different colorscheme.
   -- Change the name of the colorscheme plugin below, and then
   -- change the command in the config to whatever the name of that colorscheme is.
   --
@@ -10,6 +11,15 @@ return { -- You can easily change to a different colorscheme.
     require('kanagawa').setup {
       -- Add your kanagawa configuration here if needed
       theme = 'wave', -- Load "wave" theme (default)
+      colors = {
+        theme = {
+          all = {
+            ui = {
+              bg_gutter = 'none',
+            },
+          },
+        },
+      },
     }
     vim.cmd 'colorscheme kanagawa'
   end,
